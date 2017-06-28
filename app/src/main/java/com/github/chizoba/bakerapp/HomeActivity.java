@@ -3,11 +3,16 @@ package com.github.chizoba.bakerapp;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,22 +20,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.github.chizoba.bakerapp.IdlingResource.SimpleIdlingResource;
 import com.github.chizoba.bakerapp.adapter.HomeAdapter;
 import com.github.chizoba.bakerapp.model.Recipe;
-import com.github.chizoba.bakerapp.rest.APIClient;
-import com.github.chizoba.bakerapp.rest.APIInterface;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListItemClickListener, RecipeDownloader.DelayerCallback {
 
-public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListItemClickListener {
-
-    private static final String TAG = HomeActivity.class.getSimpleName();
-    private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
 
     private enum LayoutManagerType {
@@ -48,9 +45,26 @@ public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListI
     private SwipeRefreshLayout mSwipeRefreshLayout;
     protected ArrayList<Recipe> mRecipes = new ArrayList<>();
 
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_home);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_recipes);
@@ -68,51 +82,60 @@ public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListI
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                makeAPICall();
+                RecipeDownloader.downloadRecipe(HomeActivity.this, HomeActivity.this, mIdlingResource);
             }
         });
+        Toolbar homeToolbar = (Toolbar) findViewById(R.id.home_toolbar);
+        setSupportActionBar(homeToolbar);
 
-        // Set HomeAdapter as the adapter for RecyclerView.
-        mAdapter = new HomeAdapter(mRecipes, this);
-        mRecyclerView.setAdapter(mAdapter);
-        mProgressBar.setVisibility(View.VISIBLE);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("RECIPE_CONTENTS")) {
+                ArrayList<Recipe> recipes = savedInstanceState
+                        .getParcelableArrayList("RECIPE_CONTENTS");
+                mAdapter = new HomeAdapter(recipes, this);
+                mRecyclerView.setAdapter(mAdapter);
+            }
+        } else {
 
-//        mRecyclerView.setAdapter(new HomeAdapter((ArrayList<Recipe>) recipes, HomeActivity.this));
-        makeAPICall();
+//        // Set HomeAdapter as the adapter for RecyclerView.
+            mAdapter = new HomeAdapter(mRecipes, this);
+            mRecyclerView.setAdapter(mAdapter);
+            mProgressBar.setVisibility(View.VISIBLE);
+
+            mRecyclerView.setVisibility(View.INVISIBLE);
+            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+
+            // Get the IdlingResource instance
+            getIdlingResource();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
     }
 
-    private void makeAPICall() {
-        mRecyclerView.setVisibility(View.INVISIBLE);
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-//        mProgressBar.setVisibility(View.VISIBLE);
-
-        APIInterface mAPIService =
-                APIClient.getClient().create(APIInterface.class);
-
-        Call<List<Recipe>> call = mAPIService.getBakingRecipes();
-        call.enqueue(new Callback<List<Recipe>>() {
-            @Override
-            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-                List<Recipe> recipes = response.body();
-                Log.d(TAG, "Number of movies received: " + recipes.size());
-
-                mSwipeRefreshLayout.setRefreshing(false);
-                showDataView();
-
-//                mRecipes.addAll(recipes);
-                mAdapter.refill((ArrayList<Recipe>) recipes);
-
-            }
-
-            @Override
-            public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                Log.e(TAG, t.toString());
-                mSwipeRefreshLayout.setRefreshing(false);
-                showErrorMessage();
-            }
-        });
+    /**
+     * We call ImageDownloader.downloadImage from onStart or onResume instead of in onCreate
+     * to ensure there is enougth time to register IdlingResource if the download is done
+     * too early (i.e. in onCreate)
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        RecipeDownloader.downloadRecipe(this, HomeActivity.this, mIdlingResource);
     }
 
+    @Override
+    public void onDone(ArrayList<Recipe> recipes) {
+        mRecipes = recipes;
+        mSwipeRefreshLayout.setRefreshing(false);
+        showDataView();
+        mAdapter.refill(recipes);
+    }
+
+    @Override
+    public void onFailed(Throwable t) {
+        Log.e("RecipeDownloader", t.toString());
+        mSwipeRefreshLayout.setRefreshing(false);
+        showErrorMessage();
+    }
 
     private void showErrorMessage() {
         mRecyclerView.setVisibility(View.INVISIBLE);
@@ -175,11 +198,18 @@ public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListI
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 mSwipeRefreshLayout.setRefreshing(true);
-                makeAPICall();
+                RecipeDownloader.downloadRecipe(this, HomeActivity.this, mIdlingResource);
                 return true;
         }
 
         // you didn't trigger any option. let the superclass handle this action
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ArrayList<Recipe> recipesContents = mRecipes;
+        outState.putParcelableArrayList("RECIPE_CONTENTS", recipesContents);
     }
 }

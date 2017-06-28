@@ -1,6 +1,5 @@
 package com.github.chizoba.bakerapp;
 
-import android.app.ActionBar;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -94,10 +93,6 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
         if (getArguments() != null) {
             mParam1 = getArguments().getParcelable(ARG_PARAM1);
         }
-//        ActionBar actionBar = getActivity().getActionBar();
-//
-//        assert actionBar != null;
-//        actionBar.setTitle("Step " + mParam1.getId()+1);
     }
 
     @Override
@@ -111,12 +106,6 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
         mStepInstructionTextView = (TextView) view.findViewById(R.id.step_instruction);
 
         mStepInstructionTextView.setText(mParam1.getDescription());
-        // Load the question mark as the background image until the user answers the question.
-//        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
-//                (getResources(), R.drawable.question_mark));
-//        Bitmap bitmap = Glide.with(getActivity())
-//                .load(mParam1.getThumbnailURL());
-
         // Initialize the Media Session.
         initializeMediaSession();
 
@@ -196,19 +185,6 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
         mExoPlayer = null;
     }
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        releasePlayer();
-//    }
-
-//    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -248,11 +224,6 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
 
 //  //      playWhenReady = true (playing);
 //   //     false (not playing)
-//        if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
-//            Toast.makeText(getActivity(), "onPlayerStateChanged: PLAYING", Toast.LENGTH_SHORT).show();
-//        } else if ((playbackState == ExoPlayer.STATE_READY)) {
-//            Toast.makeText(getActivity(), "onPlayerStateChanged: PAUSED", Toast.LENGTH_SHORT).show();
-//        }
         if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
             mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
                     mExoPlayer.getCurrentPosition(), 1f);
@@ -298,6 +269,7 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
     /**
      * Shows Media Style notification, with actions that depend on the current MediaSession
      * PlaybackState.
+     *
      * @param state The PlaybackState of the MediaSession.
      */
     private void showNotification(PlaybackStateCompat state) {
@@ -305,7 +277,7 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
 
         int icon;
         String play_pause;
-        if(state.getState() == PlaybackStateCompat.STATE_PLAYING){
+        if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
             icon = R.drawable.exo_controls_pause;
             play_pause = getString(R.string.pause);
         } else {
@@ -336,8 +308,7 @@ public class StepFragment extends Fragment implements ExoPlayer.EventListener {
                 .addAction(playPauseAction)
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setMediaSession(mMediaSession.getSessionToken())
-                        .setShowActionsInCompactView(0,1));
-
+                        .setShowActionsInCompactView(0, 1));
 
         mNotificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, builder.build());

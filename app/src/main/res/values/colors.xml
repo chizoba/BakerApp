@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#006064</color>
     <color name="colorAccent">#FF6E40</color>
     <color name="colorBackgroundLight">#e5f0ee</color>
+    <color name="white">#ffffff</color>
     <!--#25a186 dark &#45;&#45; e5f0ee light-->
     <!--&lt;!&ndash;#FF4081 accent&ndash;&gt; FF3D00 FF9100-->
     <!--#01579B  1c577e-->

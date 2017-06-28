@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.chizoba.bakerapp.R;
 import com.github.chizoba.bakerapp.model.Ingredient;
@@ -15,7 +14,6 @@ import com.github.chizoba.bakerapp.model.Step;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by Chizoba on 6/9/2017.
@@ -47,6 +45,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public interface ListItemClickListener {
         void onListItemClick(int clickedItemIndex);
     }
+
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
@@ -56,18 +55,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public ViewHolderIngredient(View v) {
             super(v);
             // Define click listener for the ViewHolder's View.
-//            v.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    int clickedPosition = getAdapterPosition();
-//                    mOnClickListener.onListItemClick(clickedPosition);
-//                    Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
-//                }
-//            });
             ingredientName = (TextView) v.findViewById(R.id.ingredient_name);
             ingredientQuantity = (TextView) v.findViewById(R.id.ingredient_quantity);
             ingredientMeasure = (TextView) v.findViewById(R.id.ingredient_measure);
-
         }
 
         public TextView getIngredientName() {
@@ -109,10 +99,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * Initialize the dataset of the Adapter initializes the dataset of the Adapter and the specification
      * for the ListItemClickListener.
-//     *  @param dataSet  Number of items to display in list
-     * @param listener Listener*/
+     * //     *  @param dataSet  Number of items to display in list
+     *
+     * @param listener Listener
+     */
     public RecipeAdapter(ListItemClickListener listener) {
-//        items.addAll(dataSet.getSteps()); //dataSet.getSteps();
         mOnClickListener = listener;
     }
 
@@ -149,10 +140,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 break;
         }
         return viewHolder;
-//        View v = LayoutInflater.from(viewGroup.getContext())
-//                .inflate(R.layout.step_item, viewGroup, false);
-//
-//        return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -172,16 +159,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 //                configureDefaultViewHolder(vh, position);
                 break;
         }
-//        Log.d(TAG, "Element " + position + " set.");
-
-        // Get element from your dataset at this position and replace the contents of the view
-        // with that element
-//        viewHolder.getTextView().setText("Step #" + String.valueOf(items.get(position).getId()+1));
     }
-
-//    private void configureDefaultViewHolder(RecyclerViewSimpleTextViewHolder vh, int position) {
-//        vh.getLabel().setText((CharSequence) items.get(position));
-//    }
 
     private void configureViewHolderIngredient(ViewHolderIngredient vh1, int position) {
         Ingredient ingredient = (Ingredient) items.get(position);
@@ -193,7 +171,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void configureViewHolderStep(ViewHolderStep vh2, int position) {
-        vh2.getTextView().setText("Step " + String.valueOf(((Step) items.get(position)).getId()+1) + ": " + ((Step) items.get(position)).getShortDescription());
+        vh2.getTextView().setText("Step " + String.valueOf(((Step) items.get(position)).getId()) + ": " + ((Step) items.get(position)).getShortDescription());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -207,10 +185,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (items != null) {
             items.clear();
         }
-        if(type == INGREDIENT){
+        if (type == INGREDIENT) {
             items.addAll(recipes.getIngredients());
             notifyDataSetChanged();
-        } else if(type == STEP) {
+        } else if (type == STEP) {
             items.addAll(recipes.getSteps());
             notifyDataSetChanged();
         } else {

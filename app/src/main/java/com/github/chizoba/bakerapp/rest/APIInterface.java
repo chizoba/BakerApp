@@ -1,7 +1,5 @@
 package com.github.chizoba.bakerapp.rest;
 
-import android.graphics.Movie;
-
 import com.github.chizoba.bakerapp.model.Recipe;
 
 import java.util.List;

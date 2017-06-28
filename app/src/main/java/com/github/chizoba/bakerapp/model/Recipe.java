@@ -83,12 +83,6 @@ public class Recipe extends Object implements Parcelable {
     public List<Step> getSteps() {
         return steps;
     }
-    //        for(Ingredient i : ingredients){
-//            dest.writeValue(i);
-//        }
-//        for(Ingredient i : ingredients){
-//            dest.writeValue(i);
-//        }
 
     public void setSteps(List<Step> steps) {
         this.steps = steps;

@@ -10,4 +10,8 @@
     <string name="guess">Guess</string>
     <string name="notification_text">Notification Text</string>
     <string name="ingredients_list">Ingredients List</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="ingredient_list_empty">Ingredient List Empty</string>
+    <string name="empty_string">No data</string>
 </resources>

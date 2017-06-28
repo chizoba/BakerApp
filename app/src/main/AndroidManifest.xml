@@ -19,11 +19,33 @@
             </intent-filter>
         </activity>
         <activity android:name=".RecipeDetailsActivity" />
+
         <receiver android:name=".StepFragment$MediaReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".RecipeAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- To receive broadcast with this string name -->
+                <action android:name="com.github.chizoba.bakerapp.DATA_FETCHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recipe_app_widget_info" />
+        </receiver>
+
+        <service android:name=".RecipeService" />
+
+        <service
+            android:name=".ListWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <service android:name=".RecipeWidgetService">
+
+        </service>
     </application>
 
 </manifest>
