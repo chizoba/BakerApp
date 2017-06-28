@@ -42,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Failed to connect to the internet. Try again."
+                android:text="@string/internet_error"
                 android:textSize="20sp"
                 android:visibility="invisible" />
         </FrameLayout>
