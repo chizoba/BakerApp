@@ -2,14 +2,15 @@ package com.github.chizoba.bakerapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.github.chizoba.bakerapp.model.Ingredient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
-
-import static com.github.chizoba.bakerapp.RecipeWidgetService.listItemList;
 
 /**
  * Created by Chizoba on 6/22/2017.
@@ -18,27 +19,59 @@ import static com.github.chizoba.bakerapp.RecipeWidgetService.listItemList;
 public class ListWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new ListRemoteViewsFactory(this.getApplicationContext());
+        return new ListRemoteViewsFactory(this.getApplicationContext(), intent);
     }
 }
 
 class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    ArrayList<Ingredient> ingredients = new ArrayList<>();
     Context mContext;
+    private JSONArray ingredients;
+    private String recipeName;
 
-    public ListRemoteViewsFactory(Context context) {
+
+    public ListRemoteViewsFactory(Context context, Intent intent) {
+
         mContext = context;
+
+        if (intent.hasExtra("RecipeList")) {
+
+            String s = intent.getStringExtra("RecipeList");
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+            String preferenceString = sharedPreferences.getString(mContext.getResources().getString(R.string.pref_recipe_key), mContext.getResources().getString(R.string.pref_recipe_nutella_pie_value));
+
+            int position;
+
+            if (preferenceString == mContext.getResources().getString(R.string.pref_recipe_nutella_pie_value)) {
+                position = 0;
+            } else if (preferenceString == mContext.getResources().getString(R.string.pref_recipe_brownies_value)) {
+                position = 1;
+            } else if (preferenceString == mContext.getResources().getString(R.string.pref_recipe_yellow_cake_value)) {
+                position = 2;
+            } else {
+                position = 3;
+            }
+
+            try {
+                JSONArray jsonArray = new JSONArray(s);
+
+                JSONObject ingredientObject = jsonArray.getJSONObject(position);
+                recipeName = ingredientObject.getString("name");
+                ingredients = ingredientObject.getJSONArray("ingredients");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onCreate() {
-//        populateListItem();
     }
 
     @Override
     public void onDataSetChanged() {
-        populateListItem();
     }
 
     @Override
@@ -49,28 +82,32 @@ class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     @Override
     public int getCount() {
         if (ingredients == null) return 0;
-        return ingredients.size();
+        return ingredients.length();
 
 
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
-
-        if (ingredients == null || ingredients.size() == 0) return null;
-
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.recipe_widget);
 
-        views.setTextViewText(R.id.widget_recipe_title, ingredients.get(position).getIngredient());
+        String ingredient = null;
+
+        try {
+            JSONObject object = ingredients.getJSONObject(position);
+
+            ingredient = object.getString("ingredient");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        views.setTextViewText(R.id.widget_recipe_title, ingredient);
+
+        Intent intent = new Intent();
+        intent.putExtra("position", position);
 
         return views;
 
-    }
-
-    private void populateListItem() {
-        if (listItemList != null) {
-            ingredients.addAll(listItemList.get(0).getIngredients());
-        }
     }
 
     @Override
@@ -85,11 +122,13 @@ class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return 0;
     }
 
     @Override
     public boolean hasStableIds() {
-        return true;
+        return false;
     }
 }
+
+

@@ -1,15 +1,14 @@
 package com.github.chizoba.bakerapp;
 
-import android.app.Activity;
-import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.github.chizoba.bakerapp.model.Recipe;
 
@@ -30,13 +29,14 @@ public class RecipeDetailsActivity extends AppCompatActivity
         setContentView(R.layout.activity_recipe_details);
 
         Toolbar menuToolbar = (Toolbar) findViewById(R.id.recipe_details_toolbar);
-        TextView toolbarTextView = (TextView) menuToolbar.findViewById(R.id.toolbar_title);
         setSupportActionBar(menuToolbar);
+
+        // Remove default title text
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         if (getIntent().hasExtra(Intent.EXTRA_TEXT)) {
             mRecipe = getIntent().getParcelableExtra(Intent.EXTRA_TEXT);
-
-            toolbarTextView.setText(mRecipe.getName());
+            menuToolbar.setTitle(mRecipe.getName());
         }
 
         // Determine if you're creating a two-pane or single-pane display
@@ -83,23 +83,29 @@ public class RecipeDetailsActivity extends AppCompatActivity
                         .replace(R.id.master_list_container, new IngredientsListFragment().newInstance(mRecipe))
                         .addToBackStack(IngredientsListFragment.class.getSimpleName())
                         .commit();
-//            RecipeService.startActionDisplayIngredients(this, mRecipe.getIngredients());
-                // this intent is essential to show the widget
-                // if this intent is not included,you can't show
-                // widget on homescreen
-                Intent intent = new Intent();
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.EXTRA_APPWIDGET_ID);
-                setResult(Activity.RESULT_OK, intent);
-
-                // start your service
-                // to fetch data from web
-                Intent serviceIntent = new Intent(this, RecipeWidgetService.class);
-                serviceIntent
-                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.EXTRA_APPWIDGET_ID);
-                startService(serviceIntent);
             }
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+                startActivity(startSettingsActivity);
+                return true;
+        }
+
+        // you didn't trigger any option. let the superclass handle this action
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     public void onStepSelected(int position) {

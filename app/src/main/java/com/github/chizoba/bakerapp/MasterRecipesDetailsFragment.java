@@ -65,7 +65,7 @@ public class MasterRecipesDetailsFragment extends Fragment implements RecipeAdap
 //        enable optimizations if the items are static and will not change for significantly smoother scrolling:
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        RecipeAdapter mAdapter = new RecipeAdapter(this);
+        RecipeAdapter mAdapter = new RecipeAdapter(getActivity(), this);
         mAdapter.refill(mRecipe, 1);
         mRecyclerView.setAdapter(mAdapter);
 

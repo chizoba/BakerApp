@@ -92,13 +92,13 @@ public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListI
             if (savedInstanceState.containsKey("RECIPE_CONTENTS")) {
                 ArrayList<Recipe> recipes = savedInstanceState
                         .getParcelableArrayList("RECIPE_CONTENTS");
-                mAdapter = new HomeAdapter(recipes, this);
+                mAdapter = new HomeAdapter(this, recipes, this);
                 mRecyclerView.setAdapter(mAdapter);
             }
         } else {
 
 //        // Set HomeAdapter as the adapter for RecyclerView.
-            mAdapter = new HomeAdapter(mRecipes, this);
+            mAdapter = new HomeAdapter(this, mRecipes, this);
             mRecyclerView.setAdapter(mAdapter);
             mProgressBar.setVisibility(View.VISIBLE);
 
@@ -200,6 +200,10 @@ public class HomeActivity extends AppCompatActivity implements HomeAdapter.ListI
                 mSwipeRefreshLayout.setRefreshing(true);
                 RecipeDownloader.downloadRecipe(this, HomeActivity.this, mIdlingResource);
                 return true;
+            case R.id.action_settings:
+                    Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+                    startActivity(startSettingsActivity);
+                    return true;
         }
 
         // you didn't trigger any option. let the superclass handle this action

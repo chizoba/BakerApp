@@ -15,4 +15,21 @@
     <string name="ingredient_list_empty">Ingredient List Empty</string>
     <string name="empty_string">No data</string>
     <string name="internet_error">Failed to connect to the internet. Try again.</string>
+
+    <string name="pref_recipe_label">Choose Favorite Recipe</string>
+    <string name="pref_recipe_nutella_pie_label">Nutella Pie</string>
+    <string name="pref_recipe_brownies_label">Brownies</string>
+    <string name="pref_recipe_yellow_cake_label">Yellow Cake</string>
+    <string name="pref_recipe_cheese_cake_label">Cheese Cake</string>
+
+    <string name="pref_recipe_key" translatable="false">recipe</string>
+
+    // for values in shared preference
+    <string name="pref_recipe_nutella_pie_value" translatable="false">nutellapie</string>
+    <string name="pref_recipe_brownies_value" translatable="false">brownies</string>
+    <string name="pref_recipe_yellow_cake_value" translatable="false">yellowcake</string>
+    <string name="pref_recipe_cheese_cake_value" translatable="false">cheesecake</string>
+    <string name="action_settings">Settings</string>
+    <string name="widget_error_message">Error loading Data, Check internet Connection!</string>
+
 </resources>

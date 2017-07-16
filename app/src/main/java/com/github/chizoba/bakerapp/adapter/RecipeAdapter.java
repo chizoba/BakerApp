@@ -1,12 +1,15 @@
 package com.github.chizoba.bakerapp.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.github.chizoba.bakerapp.R;
 import com.github.chizoba.bakerapp.model.Ingredient;
 import com.github.chizoba.bakerapp.model.Recipe;
@@ -22,6 +25,8 @@ import java.util.List;
 public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "RecipeAdapter";
+
+    Context mContext;
 
     // recipes data
     private List<Object> items = new ArrayList<>();
@@ -76,6 +81,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class ViewHolderStep extends RecyclerView.ViewHolder {
         private final TextView textView;
+        private ImageView imageView;
 
         public ViewHolderStep(View v) {
             super(v);
@@ -89,10 +95,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
             textView = (TextView) v.findViewById(R.id.tv_step_number);
+            imageView = (ImageView) v.findViewById(R.id.step_image);
         }
 
         public TextView getTextView() {
             return textView;
+        }
+
+        public ImageView getImageView() {
+            return imageView;
         }
     }
 
@@ -103,7 +114,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      *
      * @param listener Listener
      */
-    public RecipeAdapter(ListItemClickListener listener) {
+    public RecipeAdapter(Context context, ListItemClickListener listener) {
+        mContext = context;
         mOnClickListener = listener;
     }
 
@@ -171,6 +183,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void configureViewHolderStep(ViewHolderStep vh2, int position) {
+        Glide.with(mContext).load(((Step) items.get(position)).getThumbnailURL()).centerCrop()
+                .placeholder(R.mipmap.ic_launcher_round).into(vh2.getImageView());
         vh2.getTextView().setText("Step " + String.valueOf(((Step) items.get(position)).getId()) + ": " + ((Step) items.get(position)).getShortDescription());
     }
 
